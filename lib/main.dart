@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(CalendarApp());
@@ -12,8 +14,12 @@ class CalendarApp extends StatelessWidget {
       title: 'Calendar App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
       ),
-      home: CalendarHomePage(),
+      home: SplashScreen(),
+      routes: {
+        '/calendar': (context) => CalendarHomePage(),
+      },
     );
   }
 }
@@ -80,10 +86,22 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                   shape: BoxShape.circle,
                 ),
               ),
+              headerStyle: HeaderStyle(
+                titleTextStyle: GoogleFonts.lato(
+                  textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                formatButtonTextStyle: GoogleFonts.lato(
+                  textStyle: TextStyle(color: Colors.white),
+                ),
+                formatButtonDecoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+              ),
             ),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
+              spacing: 8.0,
               children: [
                 ElevatedButton(
                   onPressed: () => setState(() {
