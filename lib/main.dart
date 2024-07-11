@@ -1,31 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:animations/animations.dart';
 import 'splash_screen.dart';
 
 void main() {
   runApp(CalendarApp());
 }
 
-class CalendarApp extends StatelessWidget {
+class CalendarApp extends StatefulWidget {
+  @override
+  _CalendarAppState createState() => _CalendarAppState();
+}
+
+class _CalendarAppState extends State<CalendarApp> {
+  bool isDarkMode = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Calendar App',
       theme: ThemeData(
+        brightness: isDarkMode ? Brightness.dark : Brightness.light,
         primarySwatch: Colors.blue,
         textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
       home: SplashScreen(),
       routes: {
-        '/calendar': (context) => CalendarHomePage(),
+        '/calendar': (context) => CalendarHomePage(
+          toggleTheme: () {
+            setState(() {
+              isDarkMode = !isDarkMode;
+            });
+          },
+          isDarkMode: isDarkMode,
+        ),
       },
     );
   }
 }
 
 class CalendarHomePage extends StatefulWidget {
+  final VoidCallback toggleTheme;
+  final bool isDarkMode;
+
+  CalendarHomePage({required this.toggleTheme, required this.isDarkMode});
+
   @override
   _CalendarHomePageState createState() => _CalendarHomePageState();
 }
@@ -48,6 +74,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendar App'),
+        actions: [
+          IconButton(
+            icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: widget.toggleTheme,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -104,46 +136,60 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
             Wrap(
               spacing: 8.0,
               children: [
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                _buildAnimatedButton('Previous week', () {
+                  setState(() {
                     _focusedDay = DateTime.now().subtract(Duration(days: 7));
-                  }),
-                  child: Text('Previous week'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                  });
+                }),
+                _buildAnimatedButton('Current week', () {
+                  setState(() {
                     _focusedDay = DateTime.now();
-                  }),
-                  child: Text('Current week'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                  });
+                }),
+                _buildAnimatedButton('15 Days ago', () {
+                  setState(() {
                     _focusedDay = DateTime.now().subtract(Duration(days: 15));
-                  }),
-                  child: Text('15 Days ago'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                  });
+                }),
+                _buildAnimatedButton('12 Days ago', () {
+                  setState(() {
                     _focusedDay = DateTime.now().subtract(Duration(days: 12));
-                  }),
-                  child: Text('12 Days ago'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                  });
+                }),
+                _buildAnimatedButton('10 Days ago', () {
+                  setState(() {
                     _focusedDay = DateTime.now().subtract(Duration(days: 10));
-                  }),
-                  child: Text('10 Days ago'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() {
+                  });
+                }),
+                _buildAnimatedButton('5 Days ago', () {
+                  setState(() {
                     _focusedDay = DateTime.now().subtract(Duration(days: 5));
-                  }),
-                  child: Text('5 Days ago'),
-                ),
+                  });
+                }),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedButton(String text, VoidCallback onPressed) {
+    return OpenContainer(
+      transitionType: ContainerTransitionType.fade,
+      openBuilder: (context, _) => Scaffold(
+        appBar: AppBar(title: Text(text)),
+        body: Center(child: Text(text)),
+      ),
+      closedElevation: 0,
+      closedShape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      closedColor: Colors.black,
+      openColor: Colors.white,
+      closedBuilder: (context, openContainer) => ElevatedButton(
+        onPressed: onPressed,
+        child: Text(text, style: TextStyle(color: Colors.white)),
       ),
     );
   }
