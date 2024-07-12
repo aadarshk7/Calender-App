@@ -11,6 +11,8 @@ void main() {
   runApp(CalendarApp());
 }
 
+enum CalendarType { Gregorian, Nepali }
+
 class CalendarApp extends StatefulWidget {
   @override
   _CalendarAppState createState() => _CalendarAppState();
@@ -18,6 +20,7 @@ class CalendarApp extends StatefulWidget {
 
 class _CalendarAppState extends State<CalendarApp> {
   bool isDarkMode = false;
+  CalendarType _calendarType = CalendarType.Gregorian;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +51,15 @@ class _CalendarAppState extends State<CalendarApp> {
               isDarkMode = !isDarkMode;
             });
           },
+          toggleCalendar: () {
+            setState(() {
+              _calendarType = _calendarType == CalendarType.Gregorian
+                  ? CalendarType.Nepali
+                  : CalendarType.Gregorian;
+            });
+          },
           isDarkMode: isDarkMode,
+          calendarType: _calendarType,
         ),
       },
     );
@@ -57,9 +68,16 @@ class _CalendarAppState extends State<CalendarApp> {
 
 class CalendarHomePage extends StatefulWidget {
   final VoidCallback toggleTheme;
+  final VoidCallback toggleCalendar;
   final bool isDarkMode;
+  final CalendarType calendarType;
 
-  CalendarHomePage({required this.toggleTheme, required this.isDarkMode});
+  CalendarHomePage({
+    required this.toggleTheme,
+    required this.toggleCalendar,
+    required this.isDarkMode,
+    required this.calendarType,
+  });
 
   @override
   _CalendarHomePageState createState() => _CalendarHomePageState();
@@ -67,8 +85,8 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage> {
   late CalendarFormat _calendarFormat;
-  late NepaliDateTime _focusedDay;
-  late NepaliDateTime _selectedDay;
+  late dynamic _focusedDay;
+  late dynamic _selectedDay;
   late Map<String, List<String>> _notes;
   final TextEditingController _noteController = TextEditingController();
 
@@ -76,10 +94,18 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   void initState() {
     super.initState();
     _calendarFormat = CalendarFormat.month;
-    _focusedDay = NepaliDateTime.now();
-    _selectedDay = NepaliDateTime.now();
+    _focusedDay = _getInitialDay();
+    _selectedDay = _getInitialDay();
     _notes = {};
     _loadNotes();
+  }
+
+  dynamic _getInitialDay() {
+    if (widget.calendarType == CalendarType.Nepali) {
+      return NepaliDateTime.now();
+    } else {
+      return DateTime.now();
+    }
   }
 
   Future<void> _loadNotes() async {
@@ -127,6 +153,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
             icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: widget.toggleTheme,
           ),
+          IconButton(
+            icon: Icon(widget.calendarType == CalendarType.Gregorian
+                ? Icons.language
+                : Icons.calendar_today),
+            onPressed: widget.toggleCalendar,
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -134,10 +166,14 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              TableCalendar<NepaliDateTime>(
+              TableCalendar<dynamic>(
                 calendarFormat: _calendarFormat,
-                firstDay: NepaliDateTime(2000, 1, 1),
-                lastDay: NepaliDateTime(2099, 12, 31),
+                firstDay: widget.calendarType == CalendarType.Nepali
+                    ? NepaliDateTime(2000, 1, 1)
+                    : DateTime(2000, 1, 1),
+                lastDay: widget.calendarType == CalendarType.Nepali
+                    ? NepaliDateTime(2099, 12, 31)
+                    : DateTime(2099, 12, 31),
                 focusedDay: _focusedDay,
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
@@ -181,7 +217,17 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                   ),
                 ),
                 selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
+                  if (widget.calendarType == CalendarType.Nepali) {
+                    return isSameDay(_selectedDay, day);
+                  } else {
+                    return isSameDay(_selectedDay, NepaliDateTime.fromDateTime(day));
+                  }
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
                 },
                 onFormatChanged: (format) {
                   if (_calendarFormat != format) {
@@ -190,7 +236,11 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     });
                   }
                 },
-
+                onPageChanged: (focusedDay) {
+                  setState(() {
+                    _focusedDay = focusedDay;
+                  });
+                },
               ),
               SizedBox(height: 20),
               _buildNotesSection(notes),
@@ -207,7 +257,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notes for ${_selectedDay.format('MMMM d, yyyy')}',
+          'Notes for ${widget.calendarType == CalendarType.Nepali ? _selectedDay.format('MMMM d, yyyy') : NepaliDateTime.fromDateTime(_selectedDay).format('MMMM d, yyyy')}',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
