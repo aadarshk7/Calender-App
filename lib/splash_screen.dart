@@ -23,9 +23,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 100),
             Container(
               width: 150,
-              height: 150,
+              height: 120,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 image: DecorationImage(
