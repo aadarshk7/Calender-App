@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'splash_screen.dart';
+import 'splashscreen.dart';
 
 void main() {
   runApp(CalendarApp());
@@ -24,10 +24,16 @@ class _CalendarAppState extends State<CalendarApp> {
       theme: ThemeData(
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
+        textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme.apply(
+            bodyColor: isDarkMode ? Colors.white : Colors.black,
+            displayColor: isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -216,12 +222,24 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
             : Text('No notes for this day', style: TextStyle(fontSize: 16)),
         SizedBox(height: 20),
         if (note != null)
-          ElevatedButton(
-            onPressed: _deleteNoteForSelectedDay,
-            child: Text('Delete Note'),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Colors.red,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: _deleteNoteForSelectedDay,
+                child: Text('Delete Note'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red,
+                  onPrimary: Colors.white,
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _noteController.text = note;
+                },
+                child: Text('Edit Note'),
+              ),
+            ],
           ),
         SizedBox(height: 20),
       ],
