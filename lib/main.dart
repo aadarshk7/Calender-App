@@ -27,8 +27,7 @@ class _CalendarAppState extends State<CalendarApp> {
         textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            primary: Colors.black, // Background color
-            onPrimary: Colors.white, // Text color
+            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
