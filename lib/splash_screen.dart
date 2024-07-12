@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 444),
             Text(
               'Made by Aadarsh Kunwar',
               style: TextStyle(
