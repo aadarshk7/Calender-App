@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'splashscreen.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(CalendarApp());
