@@ -220,8 +220,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
             onPressed: _deleteNoteForSelectedDay,
             child: Text('Delete Note'),
             style: ElevatedButton.styleFrom(
-              primary: Colors.red,
-              onPrimary: Colors.white,
+              foregroundColor: Colors.white, primary: Colors.red,
             ),
           ),
         SizedBox(height: 20),
