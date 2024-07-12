@@ -26,6 +26,7 @@ class _CalendarAppState extends State<CalendarApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Calendar App',
       theme: ThemeData(
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
