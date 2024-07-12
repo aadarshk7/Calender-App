@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nepali_utils/nepali_utils.dart';
 import 'dart:convert';
-import 'splash_screen.dart';
+import 'splashscreen.dart';
 
 void main() {
   NepaliUtils().language = Language.nepali;
@@ -34,7 +34,8 @@ class _CalendarAppState extends State<CalendarApp> {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -132,10 +133,10 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              TableCalendar(
+              TableCalendar<NepaliDateTime>(
                 calendarFormat: _calendarFormat,
-                firstDay: NepaliDateTime(2000),
-                lastDay: NepaliDateTime(2099),
+                firstDay: NepaliDateTime(2000, 1, 1),
+                lastDay: NepaliDateTime(2099, 12, 31),
                 focusedDay: _focusedDay,
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
