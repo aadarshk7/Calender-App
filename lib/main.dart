@@ -40,7 +40,7 @@ class CalendarApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       home: SplashScreen(),
       routes: {
-        '/calendar': (context) => CalendarHomePage(),
+        '/calendar_home_page': (context) => CalendarHomePage(),
       },
     );
   }
