@@ -112,7 +112,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     final note = _notes[_selectedDay.toString()];
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calendar App'),
+        title: Text('My Calendar App'),
         actions: [
           IconButton(
             icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
