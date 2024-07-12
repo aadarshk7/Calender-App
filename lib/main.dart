@@ -61,7 +61,7 @@ class CalendarHomePage extends StatelessWidget {
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
-              Provider.of<CalendarState>(context, listen: false).toggleTheme();
+              var toggleTheme = Provider.of<CalendarState>(context, listen: false).toggleTheme();
             },
           ),
           IconButton(

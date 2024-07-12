@@ -82,4 +82,6 @@ class CalendarState extends ChangeNotifier {
     _loadNotes();
     notifyListeners();
   }
+
+  toggleTheme() {}
 }
