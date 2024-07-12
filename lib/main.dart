@@ -3,7 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'splash_screen.dart';
+import 'splashscreen.dart';
 
 void main() {
   runApp(CalendarApp());
@@ -27,7 +27,8 @@ class _CalendarAppState extends State<CalendarApp> {
         textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -62,6 +63,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   late DateTime _focusedDay;
   late DateTime _selectedDay;
   late Map<String, String> _notes;
+  final TextEditingController _noteController = TextEditingController();
 
   @override
   void initState() {
@@ -86,15 +88,23 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     await prefs.setString('notes', json.encode(_notes));
   }
 
-  void _addNoteForSelectedDay(String note) {
+  void _addOrUpdateNoteForSelectedDay(String note) {
     setState(() {
       _notes[_selectedDay.toString()] = note;
     });
     _saveNote();
   }
 
+  void _deleteNoteForSelectedDay() {
+    setState(() {
+      _notes.remove(_selectedDay.toString());
+    });
+    _saveNote();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final note = _notes[_selectedDay.toString()];
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendar App'),
@@ -123,6 +133,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     _selectedDay = selectedDay;
                     _focusedDay = focusedDay;
                   });
+                  _noteController.text = _notes[selectedDay.toString()] ?? '';
                 },
                 onFormatChanged: (format) {
                   if (_calendarFormat != format) {
@@ -177,7 +188,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
               SizedBox(height: 20),
-              _buildNotesSection(),
+              _buildNotesSection(note),
               _buildAddNoteSection(),
             ],
           ),
@@ -186,8 +197,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     );
   }
 
-  Widget _buildNotesSection() {
-    final note = _notes[_selectedDay.toString()];
+  Widget _buildNotesSection(String? note) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -197,20 +207,35 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
         ),
         SizedBox(height: 8),
         note != null
-            ? Text(note, style: TextStyle(fontSize: 16))
+            ? Card(
+          color: widget.isDarkMode ? Colors.grey[800] : Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(note, style: TextStyle(fontSize: 16)),
+          ),
+        )
             : Text('No notes for this day', style: TextStyle(fontSize: 16)),
+        SizedBox(height: 20),
+        if (note != null)
+          ElevatedButton(
+            onPressed: _deleteNoteForSelectedDay,
+            child: Text('Delete Note'),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.red,
+              onPrimary: Colors.white,
+            ),
+          ),
         SizedBox(height: 20),
       ],
     );
   }
 
   Widget _buildAddNoteSection() {
-    final TextEditingController _noteController = TextEditingController();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Add a new note',
+          'Add or edit a note',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
@@ -226,7 +251,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
         ElevatedButton(
           onPressed: () {
             if (_noteController.text.isNotEmpty) {
-              _addNoteForSelectedDay(_noteController.text);
+              _addOrUpdateNoteForSelectedDay(_noteController.text);
               _noteController.clear();
             }
           },
