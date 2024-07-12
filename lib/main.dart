@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nepali_utils/nepali_utils.dart';
 import 'dart:convert';
-import 'splashscreen.dart';
+import 'splash_screen.dart';
 
 void main() {
   NepaliUtils().language = Language.nepali;
@@ -34,7 +34,7 @@ class _CalendarAppState extends State<CalendarApp> {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, primary: Colors.black, // Text color
+            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
