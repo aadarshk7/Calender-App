@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:animations/animations.dart';
-import 'splash_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'splashscreen.dart';
 
 void main() {
   runApp(CalendarApp());
@@ -26,7 +27,8 @@ class _CalendarAppState extends State<CalendarApp> {
         textTheme: GoogleFonts.latoTextTheme(Theme.of(context).textTheme),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -60,6 +62,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   late CalendarFormat _calendarFormat;
   late DateTime _focusedDay;
   late DateTime _selectedDay;
+  late Map<String, String> _notes;
 
   @override
   void initState() {
@@ -67,6 +70,28 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     _calendarFormat = CalendarFormat.month;
     _focusedDay = DateTime.now();
     _selectedDay = DateTime.now();
+    _notes = {};
+    _loadNotes();
+  }
+
+  Future<void> _loadNotes() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notes = Map<String, String>.from(
+          json.decode(prefs.getString('notes') ?? '{}'));
+    });
+  }
+
+  Future<void> _saveNote() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('notes', json.encode(_notes));
+  }
+
+  void _addNoteForSelectedDay(String note) {
+    setState(() {
+      _notes[_selectedDay.toString()] = note;
+    });
+    _saveNote();
   }
 
   @override
@@ -153,41 +178,8 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
               ),
               SizedBox(height: 20),
-              Wrap(
-                spacing: 8.0,
-                children: [
-                  _buildAnimatedButton('Previous week', () {
-                    setState(() {
-                      _focusedDay = DateTime.now().subtract(Duration(days: 7));
-                    });
-                  }),
-                  _buildAnimatedButton('Current week', () {
-                    setState(() {
-                      _focusedDay = DateTime.now();
-                    });
-                  }),
-                  _buildAnimatedButton('15 Days ago', () {
-                    setState(() {
-                      _focusedDay = DateTime.now().subtract(Duration(days: 15));
-                    });
-                  }),
-                  _buildAnimatedButton('12 Days ago', () {
-                    setState(() {
-                      _focusedDay = DateTime.now().subtract(Duration(days: 12));
-                    });
-                  }),
-                  _buildAnimatedButton('10 Days ago', () {
-                    setState(() {
-                      _focusedDay = DateTime.now().subtract(Duration(days: 10));
-                    });
-                  }),
-                  _buildAnimatedButton('5 Days ago', () {
-                    setState(() {
-                      _focusedDay = DateTime.now().subtract(Duration(days: 5));
-                    });
-                  }),
-                ],
-              ),
+              _buildNotesSection(),
+              _buildAddNoteSection(),
             ],
           ),
         ),
@@ -195,23 +187,53 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     );
   }
 
-  Widget _buildAnimatedButton(String text, VoidCallback onPressed) {
-    return OpenContainer(
-      transitionType: ContainerTransitionType.fade,
-      openBuilder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(text)),
-        body: Center(child: Text(text)),
-      ),
-      closedElevation: 0,
-      closedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      closedColor: Colors.black,
-      openColor: Colors.white,
-      closedBuilder: (context, openContainer) => ElevatedButton(
-        onPressed: onPressed,
-        child: Text(text, style: TextStyle(color: Colors.white)),
-      ),
+  Widget _buildNotesSection() {
+    final note = _notes[_selectedDay.toString()];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Notes for ${_selectedDay.toLocal()}',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        note != null
+            ? Text(note, style: TextStyle(fontSize: 16))
+            : Text('No notes for this day', style: TextStyle(fontSize: 16)),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildAddNoteSection() {
+    final TextEditingController _noteController = TextEditingController();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Add a new note',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        TextField(
+          controller: _noteController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Note',
+          ),
+          maxLines: 4,
+        ),
+        SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () {
+            if (_noteController.text.isNotEmpty) {
+              _addNoteForSelectedDay(_noteController.text);
+              _noteController.clear();
+            }
+          },
+          child: Text('Save Note'),
+        ),
+      ],
     );
   }
 }
