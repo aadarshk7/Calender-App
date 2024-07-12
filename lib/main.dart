@@ -34,7 +34,8 @@ class _CalendarAppState extends State<CalendarApp> {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -232,15 +233,23 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     color: widget.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    _deleteNoteForSelectedDay(index);
-                  },
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        _noteController.text = notes[index];
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _deleteNoteForSelectedDay(index);
+                      },
+                    ),
+                  ],
                 ),
-                onTap: () {
-                  _noteController.text = notes[index];
-                },
               ),
             );
           },
