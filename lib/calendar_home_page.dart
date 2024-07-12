@@ -1,5 +1,3 @@
-// TODO Implement this library.import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +7,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'calendar_type_provider.dart'; // Import the calendar type provider
+import 'theme_notifier.dart'; // Import the theme notifier
 
 class CalendarHomePage extends StatefulWidget {
   @override
@@ -77,6 +76,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
     final provider = Provider.of<CalendarTypeProvider>(context);
     final notes = _notes[_selectedDay.toString()] ?? [];
     return Scaffold(
@@ -84,11 +84,9 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
         title: Text('Calendar App'),
         actions: [
           IconButton(
-            icon: Icon(Theme.of(context).brightness == Brightness.dark
-                ? Icons.light_mode
-                : Icons.dark_mode),
+            icon: Icon(themeNotifier.isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () {
-              Provider.of<ThemeNotifier>(context, listen: false).toggleTheme();
+              themeNotifier.toggleTheme();
             },
           ),
           IconButton(
@@ -127,19 +125,13 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   defaultTextStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                   weekendTextStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                   outsideTextStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 headerStyle: HeaderStyle(
@@ -156,14 +148,10 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 ),
                 daysOfWeekStyle: DaysOfWeekStyle(
                   weekdayStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                   weekendStyle: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 selectedDayPredicate: (day) {
@@ -218,15 +206,12 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
           itemCount: notes.length,
           itemBuilder: (context, index) {
             return Card(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.grey[800] : Colors.white,
+              color: themeNotifier.isDarkMode ? Colors.grey[800] : Colors.white,
               child: ListTile(
                 title: Text(
                   notes[index],
                   style: TextStyle(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
                 trailing: Row(
