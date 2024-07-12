@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nepali_utils/nepali_utils.dart';
 import 'dart:convert';
-import 'splashscreen.dart';
+import 'splash_screen.dart';
 
 void main() {
   NepaliUtils().language = Language.nepali;
