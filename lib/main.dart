@@ -20,9 +20,10 @@ class CalendarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Calendar App',
       theme: ThemeData.light().copyWith(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue, // Set primaryColor instead of primarySwatch
         textTheme: GoogleFonts.latoTextTheme(),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -31,7 +32,7 @@ class CalendarApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue, // Set primaryColor instead of primarySwatch
         textTheme: GoogleFonts.latoTextTheme(),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -47,7 +48,6 @@ class CalendarApp extends StatelessWidget {
     );
   }
 }
-
 class CalendarHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
