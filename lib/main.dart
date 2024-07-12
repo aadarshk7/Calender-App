@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nepali_utils/nepali_utils.dart';
 import 'dart:convert';
-import 'splash_screen.dart';
+import 'splashscreen.dart';
 
 void main() {
+  NepaliUtils().language = Language.nepali;
   runApp(CalendarApp());
 }
 
@@ -20,7 +22,6 @@ class _CalendarAppState extends State<CalendarApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Calendar App',
       theme: ThemeData(
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
@@ -33,7 +34,8 @@ class _CalendarAppState extends State<CalendarApp> {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.black, // Text color
+            primary: Colors.black, // Background color
+            onPrimary: Colors.white, // Text color
             textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
         ),
@@ -65,17 +67,17 @@ class CalendarHomePage extends StatefulWidget {
 
 class _CalendarHomePageState extends State<CalendarHomePage> {
   late CalendarFormat _calendarFormat;
-  late DateTime _focusedDay;
-  late DateTime _selectedDay;
-  late Map<String, String> _notes;
+  late NepaliDateTime _focusedDay;
+  late NepaliDateTime _selectedDay;
+  late Map<String, List<String>> _notes;
   final TextEditingController _noteController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _calendarFormat = CalendarFormat.month;
-    _focusedDay = DateTime.now();
-    _selectedDay = DateTime.now();
+    _focusedDay = NepaliDateTime.now();
+    _selectedDay = NepaliDateTime.now();
     _notes = {};
     _loadNotes();
   }
@@ -83,7 +85,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
   Future<void> _loadNotes() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _notes = Map<String, String>.from(
+      _notes = Map<String, List<String>>.from(
           json.decode(prefs.getString('notes') ?? '{}'));
     });
   }
@@ -95,24 +97,30 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
 
   void _addOrUpdateNoteForSelectedDay(String note) {
     setState(() {
-      _notes[_selectedDay.toString()] = note;
+      if (_notes[_selectedDay.toString()] == null) {
+        _notes[_selectedDay.toString()] = [];
+      }
+      _notes[_selectedDay.toString()]!.add(note);
     });
     _saveNote();
   }
 
-  void _deleteNoteForSelectedDay() {
+  void _deleteNoteForSelectedDay(int index) {
     setState(() {
-      _notes.remove(_selectedDay.toString());
+      _notes[_selectedDay.toString()]!.removeAt(index);
+      if (_notes[_selectedDay.toString()]!.isEmpty) {
+        _notes.remove(_selectedDay.toString());
+      }
     });
     _saveNote();
   }
 
   @override
   Widget build(BuildContext context) {
-    final note = _notes[_selectedDay.toString()];
+    final notes = _notes[_selectedDay.toString()] ?? [];
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Calendar App'),
+        title: Text('Calendar App'),
         actions: [
           IconButton(
             icon: Icon(widget.isDarkMode ? Icons.light_mode : Icons.dark_mode),
@@ -126,30 +134,10 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
           child: Column(
             children: [
               TableCalendar(
-                firstDay: DateTime.utc(2010, 10, 16),
-                lastDay: DateTime.utc(2030, 3, 14),
-                focusedDay: _focusedDay,
                 calendarFormat: _calendarFormat,
-                selectedDayPredicate: (day) {
-                  return isSameDay(_selectedDay, day);
-                },
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                  _noteController.text = _notes[selectedDay.toString()] ?? '';
-                },
-                onFormatChanged: (format) {
-                  if (_calendarFormat != format) {
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  }
-                },
-                onPageChanged: (focusedDay) {
-                  _focusedDay = focusedDay;
-                },
+                firstDay: NepaliDateTime(2000),
+                lastDay: NepaliDateTime(2099),
+                focusedDay: _focusedDay,
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
                     color: Colors.blue,
@@ -191,9 +179,28 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                     color: widget.isDarkMode ? Colors.white : Colors.black,
                   ),
                 ),
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
+                onFormatChanged: (format) {
+                  if (_calendarFormat != format) {
+                    setState(() {
+                      _calendarFormat = format;
+                    });
+                  }
+                },
+                onPageChanged: (focusedDay) {
+                  _focusedDay = focusedDay;
+                },
               ),
               SizedBox(height: 20),
-              _buildNotesSection(note),
+              _buildNotesSection(notes),
               _buildAddNoteSection(),
             ],
           ),
@@ -202,44 +209,44 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     );
   }
 
-  Widget _buildNotesSection(String? note) {
+  Widget _buildNotesSection(List<String> notes) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notes for ${_selectedDay.toLocal()}',
+          'Notes for ${_selectedDay.format('MMMM d, yyyy')}',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
-        note != null
-            ? Card(
-          color: widget.isDarkMode ? Colors.grey[800] : Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(note, style: TextStyle(fontSize: 16)),
-          ),
+        notes.isNotEmpty
+            ? ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: notes.length,
+          itemBuilder: (context, index) {
+            return Card(
+              color: widget.isDarkMode ? Colors.grey[800] : Colors.white,
+              child: ListTile(
+                title: Text(
+                  notes[index],
+                  style: TextStyle(
+                    color: widget.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    _deleteNoteForSelectedDay(index);
+                  },
+                ),
+                onTap: () {
+                  _noteController.text = notes[index];
+                },
+              ),
+            );
+          },
         )
             : Text('No notes for this day', style: TextStyle(fontSize: 16)),
-        SizedBox(height: 20),
-        if (note != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton(
-                onPressed: _deleteNoteForSelectedDay,
-                child: Text('Delete Note'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.red,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  _noteController.text = note;
-                },
-                child: Text('Edit Note'),
-              ),
-            ],
-          ),
         SizedBox(height: 20),
       ],
     );
