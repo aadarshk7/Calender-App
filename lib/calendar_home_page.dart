@@ -79,6 +79,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     final provider = Provider.of<CalendarTypeProvider>(context);
     final notes = _notes[_selectedDay.toString()] ?? [];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Calendar App'),
@@ -181,7 +182,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
                 },
               ),
               SizedBox(height: 20),
-              _buildNotesSection(notes),
+              _buildNotesSection(notes, provider, themeNotifier),
               _buildAddNoteSection(),
             ],
           ),
@@ -190,13 +191,56 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
     );
   }
 
-
-
-
-
-
-
-
+  Widget _buildNotesSection(List<String> notes, CalendarTypeProvider provider, ThemeNotifier themeNotifier) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Notes for ${provider.calendarType == CalendarType.Nepali ? NepaliDateTime.fromDateTime(_selectedDay).format('MMMM d, yyyy') : DateFormat.yMMMMd().format(_selectedDay)}',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        notes.isNotEmpty
+            ? ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: notes.length,
+          itemBuilder: (context, index) {
+            return Card(
+              color: themeNotifier.isDarkMode ? Colors.grey[800] : Colors.white,
+              child: ListTile(
+                title: Text(
+                  notes[index],
+                  style: TextStyle(
+                    color: themeNotifier.isDarkMode ? Colors.white : Colors.black,
+                  ),
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        _noteController.text = notes[index];
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _deleteNoteForSelectedDay(index);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        )
+            : Text('No notes for this day', style: TextStyle(fontSize: 16)),
+        SizedBox(height: 20),
+      ],
+    );
+  }
 
 
   Widget _buildAddNoteSection() {
