@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^6.2.1
   animations: ^2.0.11
   shared_preferences: ^2.2.3
+  nepali_utils: ^3.0.6
 
 dev_dependencies:
   flutter_test:
