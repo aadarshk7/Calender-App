@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nepali_utils/nepali_utils.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'splash_screen.dart';
 
 void main() {
@@ -257,7 +258,7 @@ class _CalendarHomePageState extends State<CalendarHomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Notes for ${widget.calendarType == CalendarType.Nepali ? _selectedDay.format('MMMM d, yyyy') : NepaliDateTime.fromDateTime(_selectedDay).format('MMMM d, yyyy')}',
+          'Notes for ${widget.calendarType == CalendarType.Nepali ? NepaliDateTime.fromDateTime(_selectedDay).format('MMMM d, yyyy') : DateFormat.yMMMMd().format(_selectedDay)}',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
