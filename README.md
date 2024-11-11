@@ -1,5 +1,5 @@
 
-#CalendarApp
+CalendarApp
 
 A new Flutter project that displays current date and events on calender<br>
 <h1>The app & splash screen</h2> <img src ="https://github.com/aadarshk7/Calender-App/blob/master/assets/images/SplashScreen.jpg" height =600 width =366/>
